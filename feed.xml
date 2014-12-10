@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+<title type="text">while 1:<br></br>learn, sleep</title>
+<generator uri="https://github.com/jekyll/jekyll">Jekyll</generator>
+<link rel="self" type="application/atom+xml" href="http://ajayaa.github.io/feed.xml" />
+<link rel="alternate" type="text/html" href="http://ajayaa.github.io" />
+<updated>2014-12-11T01:03:37+05:30</updated>
+<id>http://ajayaa.github.io/</id>
+<author>
+  <name>Ajaya</name>
+  <uri>http://ajayaa.github.io/</uri>
+  
+</author>
+
+
+  
+
+<entry>
+  <title type="html"><![CDATA[Devstack]]></title>
+  <link rel="alternate" type="text/html" href="http://ajayaa.github.io/devstack/" />
+  <id>http://ajayaa.github.io/devstack</id>
+  <published>2014-12-10T00:00:00+05:30</published>
+  <updated>2014-12-10T00:00:00+05:30</updated>
+  <author>
+    <name>Ajaya</name>
+    <uri>http://ajayaa.github.io</uri>
+    
+  </author>
+  <content type="html">&lt;p&gt;&lt;a href=&quot;http://github.com/ajayaa/devstack-novan-multihost&quot;&gt;Path to conf files&lt;/a&gt; &lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;http://ajayaa.github.io/devstack/&quot;&gt;Devstack&lt;/a&gt; was originally published by Ajaya at &lt;a href=&quot;http://ajayaa.github.io&quot;&gt;while 1:<br></br>learn, sleep&lt;/a&gt; on December 10, 2014.&lt;/p&gt;</content>
+</entry>
+
+</feed>
