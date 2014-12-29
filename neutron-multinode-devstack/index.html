@@ -136,7 +136,7 @@
       
     </div><!--/ .headline-wrap -->
     <div class="article-wrap">
-      <p>In this post I am going to share my experience of running neutron multinode with devstack. I am assuming that you are familiar with openstack, devstack and vagrant. If not I advise you to learn at least about openstack and come back here when you feel comfortable with different components of openstack. I created three vms to do the experiment.</p>
+      <p>In this post I am going to share my experience of running neutron multinode with devstack. I am assuming that you are familiar with openstack, devstack and vagrant. If not I advise you to learn at least about openstack and come back here when you feel comfortable with different components of openstack. I created three vms to do the experiment. The most useful thing I learnt from this experiment is how external network in neutron works. </p>
 
 <ul>
   <li>node1 (controller+compute)</li>
@@ -156,7 +156,7 @@ my Vagrantfile looks like: <a href="https://github.com/ajayaa/devstack-neutron-m
 As you can see I have two interfaces attached to each of the vm. The first interface eth1 serves as management network + data network in both node1 and node2. The eth2 interface serves as the external network in this deployment. The eth2 interface in access node is used to ssh into vms created with openstack.</p>
 
 <h3 id="localconf">local.conf</h3>
-<p>Here is how local.conf file looks like in node1: <a href="https://github.com/ajayaa/devstack-neutron-multinode/blob/master/local.conf.controller">local.conf</a>. You might need to change some variables to make this work in your environment. The obvious change I see is delete the lines which export proxy variables. Usually I run a squid proxy locally to cache packages so that I won’t have to fetch packages from internet everytime I run devstack.
+<p>Here is how local.conf file looks like in node1: <a href="https://github.com/ajayaa/devstack-neutron-multinode/blob/master/local.conf.controller">local.conf</a>. If you are not behind a proxy please remove the variables http_proxy and https_proxy from local.conf.  Usually I run a squid proxy locally to cache packages so that I won’t have to fetch packages from internet everytime I run devstack.
 Similarly local.conf file in compute node looks like: <a href="https://github.com/ajayaa/devstack-neutron-multinode/blob/master/local.conf.compute">local.conf</a>. The only thing extra added here is SERVICE_HOST variable. This should point to the ip address where your controller node is running.</p>
 
 <h3 id="after-running-stacksh-with-above-localconf-setting-in-node1">After running stack.sh with above local.conf setting in node1</h3>
@@ -196,12 +196,15 @@ neutron floatingip-create
 neutron floatingip-associate &lt;port_id&gt; &lt;floatingip_id&gt;
 </code></pre>
 
-<p>Now login to your access node. You should be able to ping inst1(vm created by openstack) using the floatingip assigned to it. You should also be able to ssh into the machine. Go ahead and log into the inst1. You won’t be able to access internet from inst1. To do that you need to masquerade the traffic coming from the eth2 interface of vms such as node1, node2. Find out which interface in your laptop corresponds to eth2 in controller node. Then run the following comands in your laptop. (Assuming the interface is vboxnet5)</p>
+<p>Now login to your access node. You should be able to ping inst1(vm created by openstack) using the floatingip assigned to it. You should also be able to ssh into the machine. Go ahead and log into the inst1. You won’t be able to access internet from inst1. To do that you need to masquerade the traffic coming from the eth2 interface of node1(controller node). Find out which interface in your laptop corresponds to eth2 in controller node. Then run the following comands in your laptop. (Assuming the interface is vboxnet5 and wlan0 is connected to internet)</p>
 
-<pre><code>iptables --table nat --append POSTROUTING --out-interface vboxnet5 -j MASQUERADE
+<pre><code># The out interface for masquerading
+iptables --table nat --append POSTROUTING --out-interface wlan0 -j MASQUERADE
+# Forward from vboxnet5
+sudo iptables --append FORWARD --in-interface vboxnet5 -j ACCEPT
 </code></pre>
 
-<p>Now try to ping google.com. If you are unable to do so, open /etc/resolv.conf and change nameserver to 8.8.8.8 . If by luck you have gone through above steps correctly, you should be able to access internet from the vm created by openstack.</p>
+<p>Now try to ping google.com. If you are unable to do so, open /etc/resolv.conf and change nameserver to 8.8.8.8 . If you have gone through above steps correctly, you should be able to access internet from the vm created by openstack.</p>
 
 <h3 id="what-about-node2">What about node2?</h3>
 <p>You can bring your node2 up anytime after you have a running node1. Things run very smooth when you add a compute node which is quite surprising  ;) .</p>
@@ -209,6 +212,10 @@ neutron floatingip-associate &lt;port_id&gt; &lt;floatingip_id&gt;
 <h3 id="what-happens-behind-the-scenes">What happens behind the scenes</h3>
 
 <p>By default devstack uses vxlan to provide L2 connectivity to vms in the same subnet. It creates a private network called private with subnet-range 10.0.0.0/24 and a public network with range 192.168.200.0/24. It creates a router called router and attaches the above private network as one of the interface and sets gateway with one of the ip addresses from the public range. The gateway set for this range of public address is by default 192.168.200.1 . In this it resides in your laptop or the machine in which you created node1, node2, node3. </p>
+
+<h4 id="known-issues">Known Issues</h4>
+<p>Even after adding security group rule to allow ssh traffic to your vm, you won’t be able to ssh into cirros vm’s in compute node.
+<a href="https://ask.openstack.org/en/question/30502/can-ping-vm-instance-but-cant-ssh-ssh-command-halts-with-no-output/">Solution</a></p>
 
 <h3 id="how-does-neutron-work">How does neutron work</h3>
 <p>I will leave this for another blog post. You can find all the files used and conf files assoicated with nova and neutrona at <a href="https://github.com/ajayaa/devstack-neutron-multinode/">devstack-neutron-multinode</a></p>
