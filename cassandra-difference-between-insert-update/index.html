@@ -5,15 +5,15 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>Devstack multinode with neutron and vagrant &#8211; while 1:<br></br>learn, sleep</title>
-<meta name="description" content="Multi-node devstack experiment with neutron">
-<meta name="keywords" content="devstack, multinode, nova, neutron, openstack, vagrant">
+<title>Difference between cassandra insert and update statement &#8211; while 1:<br></br>learn, sleep</title>
+<meta name="description" content="cassandra-insert-update-ttl">
+<meta name="keywords" content="cassandra, update, insert, ttl, inconsistent, time_to_live">
 
 
 
 <!-- Twitter Cards -->
-<meta name="twitter:title" content="Devstack multinode with neutron and vagrant">
-<meta name="twitter:description" content="Multi-node devstack experiment with neutron">
+<meta name="twitter:title" content="Difference between cassandra insert and update statement">
+<meta name="twitter:description" content="cassandra-insert-update-ttl">
 <meta name="twitter:site" content="@aj_agr">
 <meta name="twitter:creator" content="@aj_agr">
 
@@ -23,16 +23,16 @@
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Devstack multinode with neutron and vagrant">
-<meta property="og:description" content="Multi-node devstack experiment with neutron">
-<meta property="og:url" content="http://ajayaa.github.io/neutron-multinode-devstack/">
+<meta property="og:title" content="Difference between cassandra insert and update statement">
+<meta property="og:description" content="cassandra-insert-update-ttl">
+<meta property="og:url" content="http://ajayaa.github.io/cassandra-difference-between-insert-update/">
 <meta property="og:site_name" content="while 1:<br></br>learn, sleep">
 
 
 
 
 
-<link rel="canonical" href="http://ajayaa.github.io/neutron-multinode-devstack/">
+<link rel="canonical" href="http://ajayaa.github.io/cassandra-difference-between-insert-update/">
 <link href="http://ajayaa.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="while 1:<br></br>learn, sleep Feed">
 
 
@@ -132,93 +132,54 @@
   <article class="post">
     <div class="headline-wrap">
       
-        <h1><a href="http://ajayaa.github.io/neutron-multinode-devstack/" rel="bookmark" title="Devstack multinode with neutron and vagrant">Devstack multinode with neutron and vagrant</a></h1>
+        <h1><a href="http://ajayaa.github.io/cassandra-difference-between-insert-update/" rel="bookmark" title="Difference between cassandra insert and update statement">Difference between cassandra insert and update statement</a></h1>
       
     </div><!--/ .headline-wrap -->
     <div class="article-wrap">
-      <p>In this post I am going to share my experience of running neutron multinode with devstack. I am assuming that you are familiar with openstack, devstack and vagrant. If not I advise you to learn at least about openstack and come back here when you feel comfortable with different components of openstack. I created three vms to do the experiment. The most useful thing I learnt from this experiment is how external network in neutron works. </p>
+      <p>This post is about explaining one huge difference between cassandra update and insert and how things get hairy when you use ttl with a column.</p>
 
-<ul>
-  <li>node1 (controller+compute)</li>
-  <li>node2 (compute)</li>
-  <li>node3 (access)</li>
-</ul>
+<h3 id="table-schema">Table schema</h3>
+<p>Here is the cql statement to create the table.</p>
 
 <figure>
-<a href="/images/neutron.jpg"><img src="/images/neutron.jpg" /></a>
-<figcaption>Conceptual diagram </figcaption>
+<a href="/images/create_table.png"><img src="/images/create_table.png" /></a>
 </figure>
 
-<h3 id="vagrantfile">Vagrantfile</h3>
+<h3 id="normal-insert">Normal insert</h3>
 
-<p>Here is how
-my Vagrantfile looks like: <a href="https://github.com/ajayaa/devstack-neutron-multinode/blob/master/Vagrantfile">Vagrantfile</a> 
-As you can see I have two interfaces attached to each of the vm. The first interface eth1 serves as management network + data network in both node1 and node2. The eth2 interface serves as the external network in this deployment. The eth2 interface in access node is used to ssh into vms created with openstack.</p>
+<figure>
+<a href="/images/insert_normal.png"><img src="/images/insert_normal.png" /></a>
+</figure>
 
-<h3 id="localconf">local.conf</h3>
-<p>Here is how local.conf file looks like in node1: <a href="https://github.com/ajayaa/devstack-neutron-multinode/blob/master/local.conf.controller">local.conf</a>. If you are not behind a proxy please remove the variables http_proxy and https_proxy from local.conf.  Usually I run a squid proxy locally to cache packages so that I won’t have to fetch packages from internet everytime I run devstack.
-Similarly local.conf file in compute node looks like: <a href="https://github.com/ajayaa/devstack-neutron-multinode/blob/master/local.conf.compute">local.conf</a>. The only thing extra added here is SERVICE_HOST variable. This should point to the ip address where your controller node is running.</p>
+<p>so far so good.</p>
 
-<h3 id="after-running-stacksh-with-above-localconf-setting-in-node1">After running stack.sh with above local.conf setting in node1</h3>
-<p>Go to your controller node. See the bridges created by openvswitch with:</p>
+<h3 id="normal-update">Normal update</h3>
 
-<pre><code>sudo ovs-vsctl show 
-</code></pre>
+<figure>
+<a href="/images/update_normal.png"><img src="/images/update_normal.png" /></a>
+</figure>
 
-<p>You can see that three bridges are created by devstack for you.</p>
+<p>This is an update which behaves like normal insert.</p>
 
-<ul>
-  <li>br-int</li>
-  <li>br-tun</li>
-  <li>br-ex</li>
-</ul>
+<h3 id="insert-and-update-with-a-null">insert and update with a null</h3>
+<figure>
+<a href="/images/insert_null.png"><img src="/images/insert_null.png" /></a>
+</figure>
 
-<p>Now to use eth2 subnet range as external ip we need to attach eth2 interface to br-ex bridge. Do it by:</p>
+<figure>
+<a href="/images/update_null.png"><img src="/images/update_null.png" /></a>
+</figure>
 
-<pre><code>sudo ovs-vsctl add-port br-ex eth2
-</code></pre>
+<p>In the insert statement as we have mentioned a primary key but set a non-primary-key column to null a row should be inserted into the table. We did the similar thing with update statement. We should be able to verify this with a select statement.</p>
 
-<p>Now add security group rules to allow icmp and ssh into vms.</p>
+<figure>
+<a href="/images/select_after_update_null.png"><img src="/images/select_after_update_null.png" /></a>
+</figure>
 
-<pre><code>nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
-nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
-</code></pre>
+<p>What happended here. There is no row corresponding to primary key ‘d’ which we used in update statement but there is one row corresponding to primary key ‘c’ which we used in insert statement. That is weird, right? Yes, it is. Apparently cassandra deletes a row if all of its non primary key fields are set to null if that row was inserted with a update statement.</p>
 
-<p>Now boot a vm using nova boot. </p>
-
-<pre><code>nova boot --flavor m1.nano --image &lt;image_id&gt; --nic net-id=&lt;subnet_id associated with private network&gt; inst1
-</code></pre>
-
-<p>Now create a floating-ip and attach it to the vm created above. To do that get the port-id associated with the ip address assigned to the vm. The commands to use are: </p>
-
-<pre><code>neutron port-list
-neutron floatingip-create
-neutron floatingip-associate &lt;port_id&gt; &lt;floatingip_id&gt;
-</code></pre>
-
-<p>Now login to your access node. You should be able to ping inst1(vm created by openstack) using the floatingip assigned to it. You should also be able to ssh into the machine. Go ahead and log into the inst1. You won’t be able to access internet from inst1. To do that you need to masquerade the traffic coming from the eth2 interface of node1(controller node). Find out which interface in your laptop corresponds to eth2 in controller node. Then run the following comands in your laptop. (Assuming the interface is vboxnet5 and wlan0 is connected to internet)</p>
-
-<pre><code># The out interface for masquerading
-iptables --table nat --append POSTROUTING --out-interface wlan0 -j MASQUERADE
-# Forward from vboxnet5
-sudo iptables --append FORWARD --in-interface vboxnet5 -j ACCEPT
-</code></pre>
-
-<p>Now try to ping google.com. If you are unable to do so, open /etc/resolv.conf and change nameserver to 8.8.8.8 . If you have gone through above steps correctly, you should be able to access internet from the vm created by openstack.</p>
-
-<h3 id="what-about-node2">What about node2?</h3>
-<p>You can bring your node2 up anytime after you have a running node1. Things run very smooth when you add a compute node which is quite surprising  ;) .</p>
-
-<h3 id="what-happens-behind-the-scenes">What happens behind the scenes</h3>
-
-<p>By default devstack uses vxlan to provide L2 connectivity to vms in the same subnet. It creates a private network called private with subnet-range 10.0.0.0/24 and a public network with range 192.168.200.0/24. It creates a router called router and attaches the above private network as one of the interface and sets gateway with one of the ip addresses from the public range. The gateway set for this range of public address is by default 192.168.200.1 . In this it resides in your laptop or the machine in which you created node1, node2, node3. </p>
-
-<h4 id="known-issues">Known Issues</h4>
-<p>Even after adding security group rule to allow ssh traffic to your vm, you won’t be able to ssh into cirros vm’s in compute node.
-<a href="https://ask.openstack.org/en/question/30502/can-ping-vm-instance-but-cant-ssh-ssh-command-halts-with-no-output/">Solution</a></p>
-
-<h3 id="how-does-neutron-work">How does neutron work</h3>
-<p>I will leave this for another blog post. You can find all the files used and conf files assoicated with nova and neutrona at <a href="https://github.com/ajayaa/devstack-neutron-multinode/">devstack-neutron-multinode</a></p>
+<h4 id="ttl">TTL</h4>
+<p>When you insert ttl into picture things really get hairy and you would run into situations where you would think it’s a cassandra bug. But in reality it’s not. Many a times it’s been reported as a bug in cassandra but had to be explained to naive souls :). I was such a naive soul sometime back. See <a href="https://issues.apache.org/jira/browse/CASSANDRA-8430">8430</a> and <a href="https://issues.apache.org/jira/browse/CASSANDRA-6668">6668</a>. TTLs are on per column basis in cassandra and you need to be careful when using ttls with update statements. The lifetime of a row would also depend on whether the row was inserted with an insert or update statement. </p>
 
       <hr />
       <footer role="contentinfo">
@@ -248,7 +209,7 @@ sudo iptables --append FORWARD --in-interface vboxnet5 -j ACCEPT
 
 
         </div>
-        <p class="byline"><strong>Devstack multinode with neutron and vagrant</strong> was published on <time datetime="2014-12-22T00:00:00+05:30">December 22, 2014</time>.</p>
+        <p class="byline"><strong>Difference between cassandra insert and update statement</strong> was published on <time datetime="2015-01-14T00:00:00+05:30">January 14, 2015</time>.</p>
       </footer>
     </div><!-- /.article-wrap -->
   
@@ -262,7 +223,7 @@ sudo iptables --append FORWARD --in-interface vboxnet5 -j ACCEPT
   <h4>You might also enjoy <small class="pull-right">(<a href="http://ajayaa.github.io/posts/">View all posts</a>)</small></h4>
     <ul>
     
-      <li><a href="http://ajayaa.github.io/cassandra-difference-between-insert-update/" title="Difference between cassandra insert and update statement">Difference between cassandra insert and update statement</a></li>
+      <li><a href="http://ajayaa.github.io/neutron-multinode-devstack/" title="Devstack multinode with neutron and vagrant">Devstack multinode with neutron and vagrant</a></li>
     
       <li><a href="http://ajayaa.github.io/devstack/" title="Devstack">Devstack</a></li>
     
