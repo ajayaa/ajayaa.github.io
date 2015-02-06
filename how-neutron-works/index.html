@@ -5,15 +5,15 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
 <head>
 <meta charset="utf-8">
-<title>Devstack &#8211; while 1:<br></br>learn, sleep</title>
-<meta name="description" content="How to run devstack multi-node with nova-network">
-<meta name="keywords" content="devstack, multinode, nova, nova-network, openstack">
+<title>How Neutron works &#8211; while 1:<br></br>learn, sleep</title>
+<meta name="description" content="Neutron internals">
+<meta name="keywords" content="devstack, multinode, nova, neutron, openstack, vagrant">
 
 
 
 <!-- Twitter Cards -->
-<meta name="twitter:title" content="Devstack">
-<meta name="twitter:description" content="How to run devstack multi-node with nova-network">
+<meta name="twitter:title" content="How Neutron works">
+<meta name="twitter:description" content="Neutron internals">
 <meta name="twitter:site" content="@aj_agr">
 <meta name="twitter:creator" content="@aj_agr">
 
@@ -23,16 +23,16 @@
 <!-- Open Graph -->
 <meta property="og:locale" content="en_US">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Devstack">
-<meta property="og:description" content="How to run devstack multi-node with nova-network">
-<meta property="og:url" content="http://localhost:4000/devstack/">
+<meta property="og:title" content="How Neutron works">
+<meta property="og:description" content="Neutron internals">
+<meta property="og:url" content="http://localhost:4000/how-neutron-works/">
 <meta property="og:site_name" content="while 1:<br></br>learn, sleep">
 
 
 
 
 
-<link rel="canonical" href="http://localhost:4000/devstack/">
+<link rel="canonical" href="http://localhost:4000/how-neutron-works/">
 <link href="http://localhost:4000/feed.xml" type="application/atom+xml" rel="alternate" title="while 1:<br></br>learn, sleep Feed">
 
 
@@ -132,11 +132,78 @@
   <article class="post">
     <div class="headline-wrap">
       
-        <h1><a href="http://localhost:4000/devstack/" rel="bookmark" title="Devstack">Devstack</a></h1>
+        <h1><a href="http://localhost:4000/how-neutron-works/" rel="bookmark" title="How Neutron works">How Neutron works</a></h1>
       
     </div><!--/ .headline-wrap -->
     <div class="article-wrap">
-      <p><a href="http://github.com/ajayaa/devstack-novan-multihost">Path to conf files</a> </p>
+      <p>It’s been a long time since I last posted in my blog. Anyway here is one describing
+the internals of Neutron with overlay network. You would be able to get most out of this post
+if you have a Openstack setup with neutron described in my previous <a href="http://">post</a>. 
+There are a number of components which are used in Neutron to give you a software defined
+networking.</p>
+
+<ul>
+  <li>OpenVSwitch</li>
+  <li>Overlay Network using GRE or VXLAN tunneling</li>
+  <li>Linux network namespaces </li>
+  <li>Linux bridges</li>
+  <li>Veth pair</li>
+</ul>
+
+<h3 id="openvswitch">OpenVSwitch</h3>
+
+<p>It’s a soft virtual switch which supports Openflow rules. It is most commonly
+used with hypervisors. It is one of the critical pieces in an SDN solution. If 
+you are hearing about OpenVswitch for the first time then watch this <a href="https://www.youtube.com/watch?v=rYW7kQRyUvA">video</a>
+to learn more about it.</p>
+
+<h3 id="overlay-network">Overlay Network</h3>
+
+<p>If you have a data center wherein your nodes are in different subnets then how do
+you connect your vms in those nodes? The answer to this question is overlay networks.
+An overlay network is built using tunneling. The tunnel could of type GRE or VXLAN.
+When a vm in one node wants to send a packet to vm in another node, the openvswitch
+encapsulates the packet with ip address of the node as an udp packet. Here is an
+image of packet which is sent. Learn more about overlay <a href="https://www.youtube.com/watch?v=Jqm_4TMmQz8">here</a></p>
+
+<figure>
+<a href="/images/vxlan.png"><img src="/images/vxlan.png" /></a>
+<figcaption>Packet flow</figcaption>
+</figure>
+
+<h3 id="linux-network-namespaces">Linux network namespaces</h3>
+
+<p>You must have heard about namespaces in programming languages. They are used to
+isolate variable names in different packages/libraries. So now think what could
+be the variables in a network namespace in context of a operating system. You
+guessed it right: <code>interfaces</code>, <code>routes</code>, <code>iptables</code>. The important thing to note
+here is you can set a namespace as the primary namespace for a process in Linux.
+To learn more about network namespaces, head over to <a href="http://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/">here</a>.</p>
+
+<h3 id="linux-bridge">Linux bridge</h3>
+
+<p>They are an age old concept. You can connect two interfaces using a linux bridge basically.
+To learn more about it go <a href="http://google.com">here</a>.</p>
+
+<h3 id="veth-pair">Veth pair</h3>
+
+<p>A veth pair is a tube basically. What goes in from one side comes out of the other side.</p>
+
+<h2 id="what-happens-when-you-create-a-network">What happens when you create a network</h2>
+
+<p>A namespace corresponding to this network is created in the network node or wherever
+the neutron service is running. A dnsmasq process is started and attached to this
+namespace. Whenver a vm uses an address from this network to boot up, the dnsmasq
+process acts as a DHCP server and hands out an ip address to the vm.</p>
+
+<h2 id="what-happens-when-you-boot-a-machine">What happens when you boot a machine</h2>
+
+<p>A tap interface for the vm is created which gets an ip address from the dnsmasq
+process. A linux bridge and a veth pair is also created. One end of the veth pair
+and tap interface get connected with linux bridge. The other end of veth pair is
+attached to an ovs-bridge. The bridge is commonly named as br-int(integration bridge).</p>
+
+<h2 id="what-happens-when-you-create-an-external-network">What happens when you create an external network</h2>
 
       <hr />
       <footer role="contentinfo">
@@ -166,7 +233,7 @@
 
 
         </div>
-        <p class="byline"><strong>Devstack</strong> was published on <time datetime="2014-12-10T00:00:00+05:30">December 10, 2014</time>.</p>
+        <p class="byline"><strong>How Neutron works</strong> was published on <time datetime="2015-02-06T00:00:00+05:30">February 06, 2015</time>.</p>
       </footer>
     </div><!-- /.article-wrap -->
   
@@ -180,11 +247,11 @@
   <h4>You might also enjoy <small class="pull-right">(<a href="http://localhost:4000/posts/">View all posts</a>)</small></h4>
     <ul>
     
-      <li><a href="http://localhost:4000/how-neutron-works/" title="How Neutron works">How Neutron works</a></li>
-    
       <li><a href="http://localhost:4000/cassandra-difference-between-insert-update/" title="Difference between cassandra insert and update statement">Difference between cassandra insert and update statement</a></li>
     
       <li><a href="http://localhost:4000/neutron-multinode-devstack/" title="Devstack multinode with neutron and vagrant">Devstack multinode with neutron and vagrant</a></li>
+    
+      <li><a href="http://localhost:4000/devstack/" title="Devstack">Devstack</a></li>
     
     </ul>
     <hr />
