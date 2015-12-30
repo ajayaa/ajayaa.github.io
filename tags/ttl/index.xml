@@ -10,14 +10,14 @@
     <atom:link href="https://ajayaa.github.io/tags/ttl/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Difference between cassandra insert and update statement</title>
+      <title>Weird Cassandra upsert behaviour</title>
       <link>https://ajayaa.github.io/cassandra-difference-between-insert-update/</link>
       <pubDate>Wed, 14 Jan 2015 00:00:00 +0000</pubDate>
       
       <guid>https://ajayaa.github.io/cassandra-difference-between-insert-update/</guid>
       <description>
 
-&lt;p&gt;This post is about explaining one huge difference between cassandra update and insert and how things get hairy when you use ttl with a column.&lt;/p&gt;
+&lt;p&gt;This post is about explaining one huge difference between cassandra upsert and insert and how things get hairy when you use ttl with a column.&lt;/p&gt;
 
 &lt;h3 id=&#34;table-schema:41955712b85b8aac932f31061c154076&#34;&gt;Table schema&lt;/h3&gt;
 
