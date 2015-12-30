@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Inconsistent on Ajaya&#39;s blog</title>
-    <link>ajayaa.github.io/tags/inconsistent/</link>
+    <link>https://ajayaa.github.io/tags/inconsistent/</link>
     <description>Recent content in Inconsistent on Ajaya&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 14 Jan 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="ajayaa.github.io/tags/inconsistent/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://ajayaa.github.io/tags/inconsistent/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Difference between cassandra insert and update statement</title>
-      <link>/ajayaa.github.io/cassandra-difference-between-insert-update/</link>
+      <link>https://ajayaa.github.io/cassandra-difference-between-insert-update/</link>
       <pubDate>Wed, 14 Jan 2015 00:00:00 +0000</pubDate>
       
-      <guid>/ajayaa.github.io/cassandra-difference-between-insert-update/</guid>
+      <guid>https://ajayaa.github.io/cassandra-difference-between-insert-update/</guid>
       <description>
 
 &lt;p&gt;This post is about explaining one huge difference between cassandra update and insert and how things get hairy when you use ttl with a column.&lt;/p&gt;
@@ -24,13 +24,13 @@
 &lt;p&gt;Here is the cql statement to create the table.&lt;/p&gt;
 
 &lt;figure&gt;
-&lt;a href=&#34;ajayaa.github.io/img/create_table.png&#34;&gt;&lt;img src=&#34;ajayaa.github.io/img/create_table.png&#34;&gt;&lt;/a&gt;
+&lt;a href=&#34;https://ajayaa.github.io/img/create_table.png&#34;&gt;&lt;img src=&#34;https://ajayaa.github.io/img/create_table.png&#34;&gt;&lt;/a&gt;
 &lt;/figure&gt;
 
 &lt;h3 id=&#34;normal-insert:41955712b85b8aac932f31061c154076&#34;&gt;Normal insert&lt;/h3&gt;
 
 &lt;figure&gt;
-&lt;a href=&#34;ajayaa.github.io/img/insert_normal.png&#34;&gt;&lt;img src=&#34;ajayaa.github.io/img/insert_normal.png&#34;&gt;&lt;/a&gt;
+&lt;a href=&#34;https://ajayaa.github.io/img/insert_normal.png&#34;&gt;&lt;img src=&#34;https://ajayaa.github.io/img/insert_normal.png&#34;&gt;&lt;/a&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;so far so good.&lt;/p&gt;
@@ -38,7 +38,7 @@
 &lt;h3 id=&#34;normal-update:41955712b85b8aac932f31061c154076&#34;&gt;Normal update&lt;/h3&gt;
 
 &lt;figure&gt;
-&lt;a href=&#34;ajayaa.github.io/img/update_normal.png&#34;&gt;&lt;img src=&#34;ajayaa.github.io/img/update_normal.png&#34;&gt;&lt;/a&gt;
+&lt;a href=&#34;https://ajayaa.github.io/img/update_normal.png&#34;&gt;&lt;img src=&#34;https://ajayaa.github.io/img/update_normal.png&#34;&gt;&lt;/a&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;This is an update which behaves like normal insert.&lt;/p&gt;
@@ -46,17 +46,17 @@
 &lt;h3 id=&#34;insert-and-update-with-a-null:41955712b85b8aac932f31061c154076&#34;&gt;insert and update with a null&lt;/h3&gt;
 
 &lt;figure&gt;
-&lt;a href=&#34;ajayaa.github.io/img/insert_null.png&#34;&gt;&lt;img src=&#34;ajayaa.github.io/img/insert_null.png&#34;&gt;&lt;/a&gt;
+&lt;a href=&#34;https://ajayaa.github.io/img/insert_null.png&#34;&gt;&lt;img src=&#34;https://ajayaa.github.io/img/insert_null.png&#34;&gt;&lt;/a&gt;
 &lt;/figure&gt;
 
 &lt;figure&gt;
-&lt;a href=&#34;ajayaa.github.io/img/update_null.png&#34;&gt;&lt;img src=&#34;ajayaa.github.io/img/update_null.png&#34;&gt;&lt;/a&gt;
+&lt;a href=&#34;https://ajayaa.github.io/img/update_null.png&#34;&gt;&lt;img src=&#34;https://ajayaa.github.io/img/update_null.png&#34;&gt;&lt;/a&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;In the insert statement as we have mentioned a primary key but set a non-primary-key column to null a row should be inserted into the table. We did the similar thing with update statement. We should be able to verify this with a select statement.&lt;/p&gt;
 
 &lt;figure&gt;
-&lt;a href=&#34;ajayaa.github.io/img/select_after_update_null.png&#34;&gt;&lt;img src=&#34;ajayaa.github.io/img/select_after_update_null.png&#34;&gt;&lt;/a&gt;
+&lt;a href=&#34;https://ajayaa.github.io/img/select_after_update_null.png&#34;&gt;&lt;img src=&#34;https://ajayaa.github.io/img/select_after_update_null.png&#34;&gt;&lt;/a&gt;
 &lt;/figure&gt;
 
 &lt;p&gt;What happended here. There is no row corresponding to primary key &amp;rsquo;d&amp;rsquo; which we used in update statement but there is one row corresponding to primary key &amp;lsquo;c&amp;rsquo; which we used in insert statement. That is weird, right? Yes, it is. Apparently cassandra deletes a row if all of its non primary key fields are set to null if that row was inserted with a update statement.&lt;/p&gt;

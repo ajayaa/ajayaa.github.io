@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Neutron on Ajaya&#39;s blog</title>
-    <link>ajayaa.github.io/tags/neutron/</link>
+    <link>https://ajayaa.github.io/tags/neutron/</link>
     <description>Recent content in Neutron on Ajaya&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 06 Feb 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="ajayaa.github.io/tags/neutron/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://ajayaa.github.io/tags/neutron/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>How Neutron works</title>
-      <link>/ajayaa.github.io/how-neutron-works/</link>
+      <link>https://ajayaa.github.io/how-neutron-works/</link>
       <pubDate>Fri, 06 Feb 2015 00:00:00 +0000</pubDate>
       
-      <guid>/ajayaa.github.io/how-neutron-works/</guid>
+      <guid>https://ajayaa.github.io/how-neutron-works/</guid>
       <description>
 
 &lt;p&gt;It&amp;rsquo;s been a long time since I last posted in my blog. Anyway here is one describing
@@ -48,7 +48,7 @@ encapsulates the packet with ip address of the node as an udp packet. Here is an
 image of packet which is sent. Learn more about overlay &lt;a href=&#34;https://www.youtube.com/watch?v=Jqm_4TMmQz8&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
 
 &lt;figure&gt;
-&lt;a href=&#34;ajayaa.github.io/img/vxlan.png&#34;&gt;&lt;img src=&#34;ajayaa.github.io/img/vxlan.png&#34;&gt;&lt;/a&gt;
+&lt;a href=&#34;https://ajayaa.github.io/img/vxlan.png&#34;&gt;&lt;img src=&#34;https://ajayaa.github.io/img/vxlan.png&#34;&gt;&lt;/a&gt;
 &lt;figcaption&gt;Packet flow&lt;/figcaption&gt;
 &lt;/figure&gt;
 
@@ -90,10 +90,10 @@ attached to an ovs-bridge. The bridge is commonly named as br-int(integration br
     
     <item>
       <title>Devstack multinode with neutron and vagrant</title>
-      <link>/ajayaa.github.io/neutron-multinode-devstack/</link>
+      <link>https://ajayaa.github.io/neutron-multinode-devstack/</link>
       <pubDate>Mon, 22 Dec 2014 00:00:00 +0000</pubDate>
       
-      <guid>/ajayaa.github.io/neutron-multinode-devstack/</guid>
+      <guid>https://ajayaa.github.io/neutron-multinode-devstack/</guid>
       <description>
 
 &lt;p&gt;In this post I am going to share my experience of running neutron multinode with devstack. I am assuming that you are familiar with openstack, devstack and vagrant. If not I advise you to learn at least about openstack and come back here when you feel comfortable with different components of openstack. I created three vms to do the experiment. The most useful thing I learnt from this experiment is how external network in neutron works.&lt;/p&gt;
@@ -105,7 +105,7 @@ attached to an ovs-bridge. The bridge is commonly named as br-int(integration br
 &lt;/ul&gt;
 
 &lt;figure&gt;
-&lt;a href=&#34;ajayaa.github.io/img/neutron.jpg&#34;&gt;&lt;img src=&#34;ajayaa.github.io/img/neutron.jpg&#34;&gt;&lt;/a&gt;
+&lt;a href=&#34;https://ajayaa.github.io/img/neutron.jpg&#34;&gt;&lt;img src=&#34;https://ajayaa.github.io/img/neutron.jpg&#34;&gt;&lt;/a&gt;
 &lt;figcaption&gt;Conceptual diagram &lt;/figcaption&gt;
 &lt;/figure&gt;
 
